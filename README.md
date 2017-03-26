@@ -26,83 +26,50 @@ Steps :
 3. Mix sugar and coffee => Tasty coffee ready :-)
 
 */
-
-
-
 function goGetMilk() {
-
-setTimeout(
-
-function () {
-
-console.log('Step 1 - I got the milk from shop')
-
-},
-
-1000
-
-)
-
+    setTimeout(
+        function () {
+            console.log('Step 1 - I got the milk from shop')
+        },
+        1000
+    )
 }
-
-
 
 function boilMilk() {
-
-setTimeout(
-
-function () {
-
-console.log('Step 2 - Milk is hot')
-
-},
-
-2000
-
-)
-
+    setTimeout(
+        function () {
+            console.log('Step 2 - Milk is hot')
+        },
+        2000
+    )
 }
-
-
 
 function mixSugarAndCoffeePowder() {
-
-setTimeout(
-
-function () {
-
-console.log('Step 3 - Coffee powder and Sugar Added');
-
-},
-
-500
-
-)
-
+    setTimeout(
+        function () {
+            console.log('Step 3 - Coffee powder and Sugar Added');
+        },
+        500
+    )
 }
-
-
 
 function makeCoffee(){
-
-goGetMilk();
-
-boilMilk();
-
-mixSugarAndCoffeePowder();
-
+  goGetMilk();
+  boilMilk();
+  mixSugarAndCoffeePowder();
 }
-
-
 
 makeCoffee();
 
-OUT PUT
+/*******************************************
 Step 3 - Coffee powder and Sugar Added
-
 Step 1 - I got the milk from shop
-
 Step 2 - Milk is hot
+***************************************************/
+
+
+
+
 (Note: To keep things simple - the example here do not demonstrate any data pass between dependent steps, which I plan to cover in next blog )
 Ahhhh !!! I do mentioned the steps in the code as per the requirement but output looks like steps are not completed in the defined order. What's going wrong here ??? - Any guess - Yes as you rightly guessed thats the problem with asynchronous code; The Javascript - welcomes you. Let's see what's wrong with the code.
  
@@ -132,58 +99,48 @@ Steps :
 
 
 
+//1) CALL BACK MODEL
+
+/*
+ Requirement : Prepare a coffee
+ Steps :
+ 1. Go and get milk from shop
+ 2. Boil the milk
+ 3. Mix sugar and coffee => Tasty coffee ready :-)
+ */
+
 function prepareCoffee() {
-
-setTimeout(
-
-/* 1 */
-
-function goGetMilk() {
-
-console.log('Step 1 - I got the milk from shop');
-
-setTimeout(
-
-/* 2 */
-
-function boilMilk() {
-
-console.log('Step 2 - Milk is hot');
-
-setTimeout(
-
-/* 3 */
-
-function mixSugarAndCoffeePowder() {
-
-console.log('Step 3 - Coffee powder and Sugar Added');
-
-},
-
-500
-
-)
-
-},
-
-2000
-
-)
-
-},
-
-1000
-
-)
-
+    setTimeout(
+        /* 1 */
+        function goGetMilk() {
+            console.log('Step 1 - I got the milk from shop');
+            setTimeout(
+                /* 2 */
+                function boilMilk() {
+                    console.log('Step 2 - Milk is hot');
+                    setTimeout(
+                        /* 3 */
+                        function mixSugarAndCoffeePowder() {
+                            console.log('Step 3 - Coffee powder and Sugar Added');
+                        },
+                        500
+                    )
+                },
+                2000
+            )
+        },
+        1000
+    )
 }
+
+/*******************************************
 OUT PUT
-
 Step 1 - I got the milk from shop
-
 Step 2 - Milk is hot
+Step 3 - Coffee powder and Sugar Added 
+***********************************************/
 
-Step 3 - Coffee powder and Sugar Added
+
 Hurray !!! - thats what I want. Cool, we have simple solution to solve the problem but this makes our code looks crazy for just for a small amount of code and small number of dependencies - scared.. - thats the problem with callback style which also termed as callback hell or pyramid of doom, see the deep stepped indentation and if you invert the code the same deep stepped indentation looks like a pyramid.
 Lets understand what is happening in the code, since we have a problem when we write the code with a synchronous mental model
 We humans, always try to make our lives easy :-). Lets keep moving to see other styles of solution.
@@ -204,105 +161,63 @@ Steps :
 
 */
 
-
-
 const goGetMilk = function () {
-
-return new Promise(function (resolve, reject) {
-
-setTimeout(
-
-function () {
-
-console.log('Step 1 - I got the milk from shop');
-
-resolve();
-
-},
-
-1000
-
-)
-
-});
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 1 - I got the milk from shop');
+                resolve();
+            },
+            1000
+        )
+    });
 };
-
-
-
 
 
 const boilMilk = function () {
-
-return new Promise(function (resolve, reject) {
-
-setTimeout(
-
-function () {
-
-console.log('Step 2 - Milk is hot');
-
-resolve();
-
-},
-
-2000
-
-)
-
-});
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 2 - Milk is hot');
+                resolve();
+            },
+            2000
+        )
+    });
 };
-
-
 
 const mixSugarAndCoffeePowder = function () {
-
-return new Promise(function (resolve, reject) {
-
-setTimeout(
-
-function () {
-
-console.log('Step 3 - Coffee powder and Sugar Added');
-
-resolve()
-
-},
-
-500
-
-)
-
-});
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 3 - Coffee powder and Sugar Added');
+                resolve()
+            },
+            500
+        )
+    });
 };
-
-
 
 /* Code looks synchronous for below lines of code .then.then... */
 
-
-
 /* 1 */
-
 goGetMilk()
-
-.then(boilMilk) /* 2 */
-
-.then(mixSugarAndCoffeePowder) /* 3 */
-
+    .then(boilMilk) /* 2 */
+    .then(mixSugarAndCoffeePowder) /* 3 */
 .catch(function (err) {
-
-console.log(err)
-
+        console.log(err)
 });
-OUT PUT
+
+/**********************************************
 Step 1 - I got the milk from shop
-
 Step 2 - Milk is hot
+Step 3 - Coffee powder and Sugar Added 
+***********************************************/
 
-Step 3 - Coffee powder and Sugar Added
+
+
+
+
 
 Awesome !!! we got the same output as desired. Definitely code looks better than our callback style but still you have problems with promises (discussion about problems with promises is beyond the scope of this post)
  
@@ -321,119 +236,76 @@ Steps :
 
 */
 
-
-
 const goGetMilk = function () {
-
-return new Promise(function (resolve, reject) {
-
-setTimeout(
-
-function () {
-
-console.log('Step 1 - I got the milk from shop');
-
-resolve();
-
-},
-
-1000
-
-)
-
-});
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 1 - I got the milk from shop');
+                resolve();
+            },
+            1000
+        )
+    });
 };
-
-
-
 
 
 const boilMilk = function () {
-
-return new Promise(function (resolve, reject) {
-
-setTimeout(
-
-function () {
-
-console.log('Step 2 - Milk is hot');
-
-resolve();
-
-},
-
-2000
-
-)
-
-});
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 2 - Milk is hot');
+                resolve();
+            },
+            2000
+        )
+    });
 };
-
-
 
 const mixSugarAndCoffeePowder = function () {
-
-return new Promise(function (resolve, reject) {
-
-setTimeout(
-
-function () {
-
-console.log('Step 3 - Coffee powder and Sugar Added');
-
-resolve()
-
-},
-
-500
-
-)
-
-});
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 3 - Coffee powder and Sugar Added');
+                resolve()
+            },
+            500
+        )
+    });
 };
 
-
-
 /* Code looks synchronous in this function */
-
 function* makeCoffee() {
-
-yield goGetMilk();
-
-yield boilMilk();
-
-yield mixSugarAndCoffeePowder();
-
+    yield goGetMilk();
+    yield boilMilk();
+    yield mixSugarAndCoffeePowder();
 }
 
-
-
 const generator = makeCoffee();
-
 /* 1 */
-
 generator.next().value.then(() =>
-
-/* 2 */ 
-
-generator.next().value.then(
-
-/* 3 */
-
-() => generator.next().value.then()
-
+    /* 2 */    
+    generator.next().value.then(
+              /* 3 */
+        () => generator.next().value.then()
 )
 ); 
+
+/************************************************
 OUT PUT 
 Step 1 - I got the milk from shop
-
-
 Step 2 - Milk is hot
+Step 3 - Coffee powder and Sugar Added s
+**************************************************/ 
 
-Step 3 - Coffee powder and Sugar Added
+
+
+
+
+
+
+
+
+
 
 Great !! we got the output what we intended to see, however let's also observe the last few lines (55-61) of code. There's lot of pain in this, isn't it?
  
@@ -460,137 +332,51 @@ Steps :
 
 */
 
-
-
-
-
 const goGetMilk = function () {
-
-
-return new Promise(function (resolve, reject) {
-
-
-setTimeout(
-
-
-function () {
-
-
-console.log('Step 1 - I got the milk from shop');
-
-
-resolve();
-
-
-},
-
-
-1000
-
-
-)
-
-
-});
-
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 1 - I got the milk from shop');
+                resolve();
+            },
+            1000
+        )
+    });
 };
-
-
-
-
-
-
 
 
 const boilMilk = function () {
-
-
-return new Promise(function (resolve, reject) {
-
-
-setTimeout(
-
-
-function () {
-
-
-console.log('Step 2 - Milk is hot');
-
-
-resolve();
-
-
-},
-
-
-2000
-
-
-)
-
-
-});
-
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 2 - Milk is hot');
+                resolve();
+            },
+            2000
+        )
+    });
 };
-
-
-
-
 
 const mixSugarAndCoffeePowder = function () {
-
-
-return new Promise(function (resolve, reject) {
-
-
-setTimeout(
-
-
-function () {
-
-
-console.log('Step 3 - Coffee powder and Sugar Added');
-
-
-resolve()
-
-
-},
-
-
-500
-
-
-)
-
-
-});
-
-
+    return new Promise(function (resolve, reject) {
+        setTimeout(
+            function () {
+                console.log('Step 3 - Coffee powder and Sugar Added');
+                resolve()
+            },
+            500
+        )
+    });
 };
 
-
-
-
-
 async function makeCoffee() {
-
-
-await goGetMilk(); /* 1 */
-
-
-await boilMilk(); /* 2 */
-
-
-await mixSugarAndCoffeePowder(); /* 3 */
-
-
+    await goGetMilk(); /* 1 */
+    await boilMilk(); /* 2 */
+    await mixSugarAndCoffeePowder(); /* 3 */
 }
 
-
 makeCoffee(); 
+
 
 Amazing!! we got the output what we intended to see and now the code looks like synchronous and this is where the future is heading. We want to write asynchronous code in synchronous style and the dream comes true with async / await.
 
